@@ -1,0 +1,104 @@
+// Wingman Frontend Coding Challenge Implementation
+
+// 1. Install dependencies using the following commands:
+// npm install react react-dom next axios tailwindcss postcss autoprefixer @shadcn/ui
+
+// tailwind.config.js
+module.exports = {
+  content: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+// pages/_app.js
+import '../styles/globals.css';
+
+function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+
+export default MyApp;
+
+// pages/index.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Home = () => {
+  const [data, setData] = useState([]);
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  useEffect(() => {
+    // Replace with fake API or local JSON data
+    axios.get('/api/mock-data').then((res) => setData(res.data));
+  }, []);
+
+  const handleSort = () => {
+    const sortedData = [...data].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    setData(sortedData);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+  const paginateData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => setCurrentPage(page);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Wingman Frontend Challenge</h1>
+
+      <button onClick={handleSort} className="mb-4 px-4 py-2 bg-blue-500 text-white rounded">
+        Sort by Name ({sortOrder})
+      </button>
+
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 p-2">Name</th>
+            <th className="border border-gray-300 p-2">Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginateData.map((item, index) => (
+            <tr key={index}>
+              <td className="border border-gray-300 p-2">{item.name}</td>
+              <td className="border border-gray-300 p-2">{item.category}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="mt-4 flex gap-2">
+        {[...Array(Math.ceil(data.length / itemsPerPage)).keys()].map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page + 1)}
+            className={`px-4 py-2 ${
+              currentPage === page + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            } rounded`}
+          >
+            {page + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+
+// styles/globals.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Add more files like Chat.js for interactive chat and configure API integration as needed.
